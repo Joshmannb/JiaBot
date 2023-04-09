@@ -1,26 +1,28 @@
-# This example requires the 'message_content' intent.
+import os
 
-import discord
-import random
+import dotenv
+import hikari
 
-intents = discord.Intents.default()
-intents.message_content = True
+dotenv.load_dotenv()
 
-client = discord.Client(intents=intents)
+bot = hikari.GatewayBot(
+    os.environ["BOT_TOKEN"],
+    intents=hikari.Intents.ALL_MESSAGES,
+)
 
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
 
-@client.event
-async def on_message(message: discord.Message):
-    if message.author == client.user:
+@bot.listen()
+async def on_message_create(event: hikari.GuildMessageCreateEvent) -> None:
+    if not event.is_human or not event.content:
         return
 
-    if message.content.startswith('$hello'):
-        await message.channel.send('meow!')
-        
-    if (message.content) == '!roll':
-        await message.channel.send(str(random.randint(0, 100)))
+    me = bot.get_me()
+    if not me:
+        return
 
-client.run('MTA5MjQyMzg2NTU1NDE3Mzk4Mg.GBL3n9.fb-FJL_UahyoosH-hXe_u3enFJvUtKJHIFcous')
+    if event.content == f"<@{me.id}> ping":
+        await event.message.respond(f"Pong! {bot.heartbeat_latency * 1000:.0f}ms.")
+
+
+if __name__ == "__main__":
+    bot.run()
