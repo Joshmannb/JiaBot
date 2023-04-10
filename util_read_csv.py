@@ -10,7 +10,8 @@ def build_db(file_name):
     db = dict()
     for row in kanji_data.values:
         temp = row[3].split(";")
-        db[row[0]] = [x for x in temp if x != ""]
+        # db[row[0]] = [x for x in temp if x != ""]
+        db[row[0]] = ';'.join([x for x in temp if x != ""])
     
     return db
 
